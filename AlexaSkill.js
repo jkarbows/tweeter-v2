@@ -154,7 +154,7 @@ Response.prototype = (function () {
             }
         }
         if (options.cardImages) {
-            alexaReponse.card.type = "Standard";
+            alexaResponse.card.type = "Standard";
             alexaResponse.card.images = {
                 smallImageUrl: options.cardImages[0],
                 largeImageUrl: options.cardImages[1]

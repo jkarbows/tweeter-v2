@@ -114,7 +114,7 @@ These methods will accept an array of two images, your small image url and large
 Then, underneath the conditional we added earlier to change the card type add in the following:
 ```javascript
 if (options.cardImages) {
-	alexaResposne.card.type = "Standard";
+	alexaResponse.card.type = "Standard";
 	alexaResponse.card.images = {
 		smallImageUrl: options.cardImages[0],
 		largeImageUrl: options.cardImages[1]
