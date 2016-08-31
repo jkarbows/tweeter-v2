@@ -85,7 +85,7 @@ Now we can share our app with anyone, and provide them with a way to log in thro
 
 Amazon so far has provided very little in the way of support for card markup. Currently the only tools availalable to developers looking to style or format cards for their skill are newlines(\r\n or just \n) and [images](https://developer.amazon.com/public/solutions/alexa/alexa-skills-kit/docs/providing-home-cards-for-the-amazon-alexa-app#creating-a-home-card-to-display-text-and-an-image). You can only include a single image on a card, so choose wisely. You'll need to provide a small image url sized at 720 x 480 and a large image url sized at 1200 x 800 in png or jpg behind an https endpoint.
 
-To enable cards with images, head back to the methods returned by the Response.prototype function and add in tellWithCardImage and askWithCardImage:
+To enable cards with images, head back to the methods returned by the Response.prototype function and add these two functions, tellWithCardImage and askWithCardImage:
 ```javascript
 tellWithCardImage: function (speechOutput, cardTitle, cardContent, images) {
 	this._context.succeed(buildSpeechletResponse({
@@ -109,7 +109,7 @@ askWithCardImage: function (speechOutput, repromptSpeech, cardTitle, cardContent
 	}));
 },
 ```
-These methods will accept an array of two images, your small image url and large image url.
+These methods will accept an array of two images, your small image url and large image url, respectively.
 
 Then, underneath the conditional we added earlier to change the card type add in the following:
 ```javascript
@@ -125,4 +125,4 @@ This will change the card type to Standard and set the images. If you've met Ama
 
 ## Thanks for reading :)
 
-Hopefully this has been an informative journey.
+Hopefully this has been an informative journey. Voice experiences can be an exciting challenge to build, and Amazon's skill marketplace is in need of cool new things that are actually worth using. Be the developer you wish to see in the world.
