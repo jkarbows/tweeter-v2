@@ -57,7 +57,7 @@ Tweeter.prototype.eventHandlers.onSessionStarted = function(sessionStartedReques
 
     if(session.user.accessToken) {
         var token = session.user.accessToken;
-        var tokens = token.split('%20');
+        var tokens = token.split(/*your token separator*/);
         userToken = tokens[0];
         userSecret = tokens[1];
     } else {
@@ -83,4 +83,46 @@ Now we can share our app with anyone, and provide them with a way to log in thro
 
 ## Standard Cards(the ones with images)
 
-Amazon's so far has provided very little in the way of support for card markup. Currently the only tools availalable to developers looking to style or format cards for their skill are newlines(\r\n or just \n) and [images](https://developer.amazon.com/public/solutions/alexa/alexa-skills-kit/docs/providing-home-cards-for-the-amazon-alexa-app).
+Amazon so far has provided very little in the way of support for card markup. Currently the only tools availalable to developers looking to style or format cards for their skill are newlines(\r\n or just \n) and [images](https://developer.amazon.com/public/solutions/alexa/alexa-skills-kit/docs/providing-home-cards-for-the-amazon-alexa-app#creating-a-home-card-to-display-text-and-an-image). You can only include a single image on a card, so choose wisely. You'll need to provide a small image url sized at 720 x 480 and a large image url sized at 1200 x 800 in png or jpg behind an https endpoint.
+
+To enable cards with images, head back to the methods returned by the Response.prototype function and add in tellWithCardImage and askWithCardImage:
+```javascript
+tellWithCardImage: function (speechOutput, cardTitle, cardContent, images) {
+	this._context.succeed(buildSpeechletResponse({
+		session: this._session,
+		output: speechOutput,
+		cardTitle: cardTitle,
+		cardContent: cardContent,
+		cardImages: images,
+		shouldEndSession: true
+	}));
+},
+askWithCardImage: function (speechOutput, repromptSpeech, cardTitle, cardContent, images) {
+	this._context.succeed(buildSpeechletResponse({
+		session: this._session,
+		output: speechOutput,
+		reprompt: repromptSpeech,
+		cardTitle: cardTitle,
+		cardContent: cardContent,
+		cardImages: images,
+		shouldEndSession: false
+	}));
+},
+```
+These methods will accept an array of two images, your small image url and large image url.
+
+Then, underneath the conditional we added earlier to change the card type add in the following:
+```javascript
+if (options.cardImages) {
+	alexaResposne.card.type = "Standard";
+	alexaResponse.card.images = {
+		smallImageUrl: options.cardImages[0],
+		largeImageUrl: options.cardImages[1]
+	};
+}
+```
+This will change the card type to Standard and set the images. If you've met Amazon's standards, you should be seeing an image along with those cards now.
+
+## Thanks for reading :)
+
+Hopefully this has been an informative journey.

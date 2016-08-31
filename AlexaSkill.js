@@ -153,6 +153,13 @@ Response.prototype = (function () {
                 type: options.cardType
             }
         }
+        if (options.cardImages) {
+            alexaReponse.card.type = "Standard";
+            alexaResponse.card.images = {
+                smallImageUrl: options.cardImages[0],
+                largeImageUrl: options.cardImages[1]
+            };
+        }
         var returnResult = {
                 version: '1.0',
                 response: alexaResponse
@@ -180,6 +187,16 @@ Response.prototype = (function () {
                 shouldEndSession: true
             }));
         },
+        tellWithCardImage: function (speechOutput, cardTitle, cardContent, images) {
+            this._context.succeed(buildSpeechletResponse({
+                session: this._session,
+                output: speechOutput,
+                cardTitle: cardTitle,
+                cardContent: cardContent,
+                cardImages: images,
+                shouldEndSession: true
+            }));
+        },
         ask: function (speechOutput, repromptSpeech) {
             this._context.succeed(buildSpeechletResponse({
                 session: this._session,
@@ -195,6 +212,17 @@ Response.prototype = (function () {
                 reprompt: repromptSpeech,
                 cardTitle: cardTitle,
                 cardContent: cardContent,
+                shouldEndSession: false
+            }));
+        },
+        askWithCardImage: function (speechOutput, repromptSpeech, cardTitle, cardContent, images) {
+            this._context.succeed(buildSpeechletResponse({
+                session: this._session,
+                output: speechOutput,
+                reprompt: repromptSpeech,
+                cardTitle: cardTitle,
+                cardContent: cardContent,
+                cardImages: images,
                 shouldEndSession: false
             }));
         },
