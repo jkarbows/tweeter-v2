@@ -22,9 +22,10 @@ Tweeter.prototype.eventHandlers.onSessionStarted = function(sessionStartedReques
 
     if(session.user.accessToken) {
         var token = session.user.accessToken;
-        var tokens = token.split('%20');
+        var tokens = token.split('ILOVEYOU');
         userToken = tokens[0];
         userSecret = tokens[1];
+        console.log('tokens' + tokens[0] + ' :: ' + tokens[1])
     } else {
         var speechOutput = "You must have a Twitter account to use this skill. "
             + "Click on the card in the Alexa app to link your account now.";
@@ -44,8 +45,8 @@ Tweeter.prototype.intentHandlers = {
         var oauth = new OAuth.OAuth(
             'https://api.twitter.com/oauth/request_token',
             'https://api.twitter.com/oauth/access_token',
-            userToken,
-            userSecret,
+            secrets.twitter.consumer.public,
+            secrets.twitter.consumer.secret,
             '1.0A',
             null,
             'HMAC-SHA1'
@@ -58,8 +59,8 @@ Tweeter.prototype.intentHandlers = {
 
         oauth.post(
             url,
-            secrets.twitter.user.token,
-            secrets.twitter.user.secret,
+            userToken,
+            userSecret,
             null, // body
             function(err, data, res) {
                 if(err) {

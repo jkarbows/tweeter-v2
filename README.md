@@ -29,7 +29,7 @@ reject: function (speechOutput) {
 ```
 This function will be used later to reject users who haven't authorized the skill with their twitter account with a LinkAccount card. Notice we'll only need to provide the speech output- we can't control the content or title of the LinkAccount card, only set the card type as such.
 
-Near the top of the same Response.prototype function, in buildSpeechletResponse, we'll add a conditional to change the card type if it the option is supplied. Add it after the cardTitle and cardContent are set, so we can use this again later to support images as well.
+Near the top of the same Response.prototype function, in buildSpeechletResponse, we'll add a conditional to change the card type if the option is supplied. Add it after the cardTitle and cardContent are set, so we can use this again later to support images as well.
 ```javascript
 if (options.cardType) {
 	alexaResponse.card = {
@@ -69,15 +69,15 @@ Tweeter.prototype.eventHandlers.onSessionStarted = function(sessionStartedReques
 ```
 This will provide us access to the tokens in our oauth invocation in the TweetIntent function:
 ```javascript
-var oauth = new OAuth.OAuth(
-	'https://api.twitter.com/oauth/request_token',
-	'https://api.twitter.com/oauth/access_token',
+oauth.post(
+	url,
 	userToken,
 	userSecret,
-	'1.0A',
-	null,
-	'HMAC-SHA1'
-);
+	null, // body
+	function(err, data, res) {
+		//
+	}
+)
 ```
 Now we can share our app with anyone, and provide them with a way to log in through their Twitter account!
 
