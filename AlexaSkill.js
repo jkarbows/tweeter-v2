@@ -44,7 +44,7 @@ AlexaSkill.prototype.eventHandlers = {
      * Called when the session starts.
      * Subclasses could have overriden this function to open any necessary resources.
      */
-    onSessionStarted: function (sessionStartedRequest, session) {
+    onSessionStarted: function (sessionStartedRequest, session, response) {
     },
 
     /**
@@ -99,7 +99,7 @@ AlexaSkill.prototype.execute = function (event, context) {
         }
 
         if (event.session.new) {
-            this.eventHandlers.onSessionStarted(event.request, event.session);
+            this.eventHandlers.onSessionStarted(event.request, event.session, new Response(context, event.session));
         }
 
         // Route the request to the proper handler which may have been overriden.
@@ -148,6 +148,11 @@ Response.prototype = (function () {
                 content: options.cardContent
             };
         }
+        if (options.cardType) {
+            alexaResponse.card = {
+                type: options.cardType
+            }
+        }
         var returnResult = {
                 version: '1.0',
                 response: alexaResponse
@@ -191,6 +196,14 @@ Response.prototype = (function () {
                 cardTitle: cardTitle,
                 cardContent: cardContent,
                 shouldEndSession: false
+            }));
+        },
+        reject: function (speechOutput) {
+            this._context.succeed(buildSpeechletResponse({
+                session: this._session,
+                output: speechOutput,
+                cardType: "LinkAccount",
+                shouldEndSession: true
             }));
         }
     };

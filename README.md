@@ -14,8 +14,73 @@ Actually building the login page is beyond the scope of this article, as there a
 
 # Dive In to the LinkAccount Card
 
-Now that we have our authorization tokens, we can set up our LinkAccount card in our skill to provide a card with a link to our login/authorization page to users who try to use the skill without logging in through Twitter. Our first stop is [AlexaSkill.js](./AlexaSkill.js)
+Now that we have our authorization tokens, we can set up our LinkAccount card in our skill to provide a card with a link to our login/authorization page to users who try to use the skill without logging in through Twitter. Our first stop is [AlexaSkill.js](./AlexaSkill.js).
+
+Near the bottom, in the function that builds Response.prototype, we find our core methods of the response object: tell, tellWithCard, ask, and askWithCard. It's here that we'll add our reject method to provide users with the LinkAccount card. At the bottom of the return, after the askWithCard function, add the following:
+```javascript
+reject: function (speechOutput) {
+	this._context.succeed(buildSpeechletResponse({
+		session: this._session,
+		output: speechOutput,
+		cardType: "LinkAccount",
+		shouldEndSession: true
+	}));
+}
+```
+This function will be used later to reject users who haven't authorized the skill with their twitter account with a LinkAccount card. Notice we'll only need to provide the speech output- we can't control the content or title of the LinkAccount card, only set the card type as such.
+
+Near the top of the same Response.prototype function, in buildSpeechletResponse, we'll add a conditional to change the card type if it the option is supplied. Add it after the cardTitle and cardContent are set, so we can use this again later to support images as well.
+```javascript
+if (options.cardType) {
+	alexaResponse.card = {
+		type: options.cardType
+	}
+}
+```
+Around the middle of the file, in the AlexaSkill.prototype.execute function, we'll find a conditional that controls what parameters get passed into a new session. We're going to modify this to pass in a new Response object along with the request and session.
+```javascript
+if (event.session.new) {
+	this.eventHandlers.onSessionStarted(event.request, event.session, new Response(context, event.session));
+}
+```
+Now we'll have access to our reject method when our session starts, so we can serve up those hot fresh LinkAccount cards.
+
+Back near the top, in AlexaSkill.prototype.eventHandlers, we'll find the onSessionStarted function. This is the function we'll override in our skill to handle the LinkAccount card logic.
+```javascript
+onSessionStarted: function (sessionStartedRequest, session, response) {
+},
+```
+We've added the response parameter on to the end of the function so we can use the reject function in our skill like so
+```javascript
+Tweeter.prototype.eventHandlers.onSessionStarted = function(sessionStartedRequest, session, response) {
+    console.log('Twitter onSessionStarted requestId:' + sessionStartedRequest.requestId +', sessionId: ' + session.sessionId);
+
+    if(session.user.accessToken) {
+        var token = session.user.accessToken;
+        var tokens = token.split('%20');
+        userToken = tokens[0];
+        userSecret = tokens[1];
+    } else {
+        var speechOutput = "You must have a Twitter account to use this skill. "
+            + "Click on the card in the Alexa app to link your account now.";
+        response.reject(speechOutput);
+    }
+};
+```
+This will provide us access to the tokens in our oauth invocation in the TweetIntent function.
+```javascript
+var oauth = new OAuth.OAuth(
+	'https://api.twitter.com/oauth/request_token',
+	'https://api.twitter.com/oauth/access_token',
+	userToken,
+	userSecret,
+	'1.0A',
+	null,
+	'HMAC-SHA1'
+);
+```
+Now we can share our app with anyone, and provide them with a way to log in through their Twitter account!
 
 # Standard Cards(the ones with images)
 
-Amazon's has so far provided very little support for card markup. Currently the only tools availalable to skill developers looking to format their cards are newlines(\r\n or just \n) and images.
+Amazon's so far has provided very little in the way of support for card markup. Currently the only tools availalable to developers looking to style or format cards for their skill are newlines(\r\n or just \n) and [images](https://developer.amazon.com/public/solutions/alexa/alexa-skills-kit/docs/providing-home-cards-for-the-amazon-alexa-app).

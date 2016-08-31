@@ -3,7 +3,9 @@
 
 var AlexaSkill = require('./AlexaSkill');
 var OAuth = require('oauth');
-var secrets = require('./secrets');
+
+var userToken = '';
+var userSecret = '';
 
 var APP_ID = secrets.alexa;
 
@@ -14,8 +16,19 @@ var Tweeter = function() {
 Tweeter.prototype = Object.create(AlexaSkill.prototype);
 Tweeter.prototype.constructor = Tweeter;
 
-Tweeter.prototype.eventHandlers.onSessionStarted = function(sessionStartedRequest, session) {
+Tweeter.prototype.eventHandlers.onSessionStarted = function(sessionStartedRequest, session, response) {
     console.log('Twitter onSessionStarted requestId:' + sessionStartedRequest.requestId +', sessionId: ' + session.sessionId);
+
+    if(session.user.accessToken) {
+        var token = session.user.accessToken;
+        var tokens = token.split('%20');
+        userToken = tokens[0];
+        userSecret = tokens[1];
+    } else {
+        var speechOutput = "You must have a Twitter account to use this skill. "
+            + "Click on the card in the Alexa app to link your account now.";
+        response.reject(speechOutput);
+    }
 };
 
 Tweeter.prototype.eventHandlers.onLaunch = function(launchRequest, session, response) {
@@ -30,8 +43,8 @@ Tweeter.prototype.intentHandlers = {
         var oauth = new OAuth.OAuth(
             'https://api.twitter.com/oauth/request_token',
             'https://api.twitter.com/oauth/access_token',
-            secrets.twitter.consumer.public,
-            secrets.twitter.consumer.secret,
+            userToken,
+            userSecret,
             '1.0A',
             null,
             'HMAC-SHA1'
