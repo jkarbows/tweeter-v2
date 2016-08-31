@@ -3,6 +3,7 @@
 
 var AlexaSkill = require('./AlexaSkill');
 var OAuth = require('oauth');
+var secrets = require('./secrets');
 
 var userToken = '';
 var userSecret = '';
